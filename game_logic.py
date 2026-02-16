@@ -312,6 +312,13 @@ def play_cpu_vs_cpu(q_values, cpu1_marker=1, cpu2_marker=2, seconds=1):
 
 def cli_main():
     """Terminal entrypoint for training/testing/playing without Tkinter."""
+    def _prompt_choice(prompt: str, choices: set[str]) -> str:
+        while True:
+            value = input(prompt).strip()
+            if value in choices:
+                return value
+            print(f"Enter one of: {', '.join(sorted(choices))}\n")
+
     while True:
         match_up = input("\nChoose an option:\n1 = Player vs. CPU\n2 = Watch CPU vs. CPU\n3 = Test CPU playing itself\nAnything Else = Exit\nEnter number: ").strip()
         if match_up not in {'1','2','3'}:
@@ -351,11 +358,14 @@ def cli_main():
                 print(f"Could not save model: {exc}\n")
 
         if match_up == '1':
-            x_o = int(input("Do you want to play as X or O?\n1 = X\n2 = O\nEnter a number: "))
-            if x_o == 2:
+            order = _prompt_choice(
+                "Do you want to play first or second?\n1 = First (X)\n2 = Second (O)\nEnter a number: ",
+                {"1", "2"},
+            )
+            if order == "2":
                 play_against_cpu(q_vals, cpu_marker=1)
-            else:    
-                play_against_cpu(q_vals)
+            else:
+                play_against_cpu(q_vals, cpu_marker=2)
         elif match_up == '2':
             seconds = float(input("Enter the delay between CPU moves in seconds (ex: 1.5): "))
             play_cpu_vs_cpu(q_vals, seconds=seconds)
